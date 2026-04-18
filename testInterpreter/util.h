@@ -5,6 +5,7 @@
 struct Util {
 	static bool IsIntegar(string s) {};
 	static bool IsWhiteSpace(char c) {};
+	static bool InList(std::list<char> l, char c) {};
 };
 
 #endif // !UTIO

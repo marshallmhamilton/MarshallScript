@@ -13,6 +13,6 @@ struct Util {
 		return (c == '\n' or c == ' ' or c == '\t');
 	}
 	static bool InList(std::list<char> l, char c) {
-
+		return (std::find(l.begin(), l.end(), c) != l.end());
 	};
 };

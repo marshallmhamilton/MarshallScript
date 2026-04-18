@@ -225,14 +225,14 @@ vector<Token> Lexer(string text) {
         stringstream val;
         val << c;
 
-        if (whiteSpace(c))
+        if (Util::IsWhiteSpace(c))
             continue;
 
-        if (inList(LOGIC_DEF_CHARS, c)) {
+        if (Util::InList(LOGIC_DEF_CHARS, c)) {
             
             
             for (int i = pos + 1; i < len; i++) {
-                if (not inList(LOGIC_DEF_CHARS, text[i])) break;
+                if (not Util::InList(LOGIC_DEF_CHARS, text[i])) break;
                 val << text[i];
                 pos = i;
             }
