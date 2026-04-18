@@ -190,7 +190,7 @@ Token VarToToken(VarValue var) {
 VarValue TokenToVar(Token token) {
     switch (token.type) {
     case NUMBER: {
-        if (isIntegar(token.value)) {
+        if (Util::IsIntegar(token.value)) {
             return std::stoi(token.value);
         }
         else {
