@@ -21,9 +21,6 @@
     <ClCompile Include="tokens.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="expr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -36,9 +33,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="constants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="expr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="util.h">

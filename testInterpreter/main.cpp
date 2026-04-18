@@ -24,7 +24,6 @@ public:
 };
 
 class Environment;
-
 VarValue GenerateInstructions(vector<Token> tokens, Environment environment);
 
 class Environment {
@@ -123,7 +122,7 @@ public:
         else {
             if (parent != nullptr) {
                 return parent->findCallback(id);
-            }
+            } 
         }
     }
 
@@ -190,7 +189,7 @@ Token VarToToken(VarValue var) {
 VarValue TokenToVar(Token token) {
     switch (token.type) {
     case NUMBER: {
-        if (Util::IsIntegar(token.value)) {
+        if (Utils::IsIntegar(token.value)) {
             return std::stoi(token.value);
         }
         else {
@@ -225,18 +224,18 @@ vector<Token> Lexer(string text) {
         stringstream val;
         val << c;
 
-        if (Util::IsWhiteSpace(c))
+        if (Utils::IsWhiteSpace(c))
             continue;
 
-        if (Util::InList(LOGIC_DEF_CHARS, c)) {
+        if (Utils::InList(LOGIC_DEF_CHARS, c)) {
             
             
             for (int i = pos + 1; i < len; i++) {
-                if (not Util::InList(LOGIC_DEF_CHARS, text[i])) break;
+                if (not Utils::InList(LOGIC_DEF_CHARS, text[i])) break;
                 val << text[i];
                 pos = i;
             }
-            if (inList(LOGIC_DEFS, val.str())) {
+            if (Utils::InList(LOGIC_DEFS, val.str())) {
                 tokens.push_back(Token(val.str(), LOGIC));
                 
                 continue;
@@ -244,15 +243,15 @@ vector<Token> Lexer(string text) {
             
         }
 
-        if (inList(OPERATORS, c)) {
+        if (Utils::InList(OPERATORS, c)) {
            
             for (int i = pos + 1; i < len; i++) {
-                if (not inList(OPERATORS, text[i])) break;
+                if (not Utils::InList(OPERATORS, text[i])) break;
                 val << text[i];
                 pos = i;
             }
 
-            if (inList(DEFS, val.str())) {
+            if (Utils::InList(DEFS, val.str())) {
                 tokens.push_back(Token(val.str(), DEF));
                 continue;
             }
@@ -265,11 +264,11 @@ vector<Token> Lexer(string text) {
 
         
 
-        if (inList(TEXT_CHARS, c)) {
+        if (Utils::InList(TEXT_CHARS, c)) {
                
             for (int i = pos + 1; i < len; i++) {
 
-                if (not inList(TEXT_CHARS, text[i]) and not isdigit(text[i])) break;
+                if (not Utils::InList(TEXT_CHARS, text[i]) and not isdigit(text[i])) break;
                 pos = i;
 
                 val << text[i];
@@ -284,7 +283,7 @@ vector<Token> Lexer(string text) {
                 
                 
 
-            if (inList(KEYWORDS, val.str())) {
+            if (Utils::InList(KEYWORDS, val.str())) {
                 tokens.push_back(Token(val.str(), KEYWORD));
                 continue;
             }
@@ -494,7 +493,7 @@ Token changeVarType(VarValue val, TokenType convert) {
         return Token(first.value, STRING);
     } 
     if (convert == NUMBER) {
-        if (isIntegar(first.value)) {
+        if (Utils::IsIntegar(first.value)) {
             return Token(std::to_string(std::stoi(first.value)), NUMBER);
         }
         else {
@@ -552,7 +551,7 @@ Token SimplifyExpr(vector<Token> tokens,   Environment& env) {
                 size = tokens.size();
                 
             }
-            else if (inList(TYPENAMES,token.value)) {
+            else if (Utils::InList(TYPENAMES,token.value)) {
                 vector<VarValue> args = EvaluateArguments(tokens, env, num + 2);
                 tokens.erase(tokens.begin() + num + 1);
                 if (args.size() != 1) {

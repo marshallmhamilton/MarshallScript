@@ -7,9 +7,6 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
-#include "util.h"
-#include "tokens.h"
-#include "expr.h"
 
 
 enum None {
@@ -39,5 +36,8 @@ enum TokenType {
     BREAK,
     COMMA
 };
+
+#include "tokens.h"
+#include "util.h"
 #include "constants.h"
 #endif

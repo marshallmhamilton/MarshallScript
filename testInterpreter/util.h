@@ -2,10 +2,18 @@
 #define UTIL_H
 #include "main.h"
 
-struct Util {
-	static bool IsIntegar(string s) {};
-	static bool IsWhiteSpace(char c) {};
-	static bool InList(std::list<char> l, char c) {};
+struct Utils {
+
+	static bool IsIntegar(string s);
+
+	static bool IsWhiteSpace(char c);
+
+	
+
+	template <typename T>
+	static bool InList(std::list<T> l, T v) {
+		return (std::find(l.begin(), l.end(), v) != l.end());
+	}
 };
 
-#endif // !UTIO
+#endif // UTIL_H
