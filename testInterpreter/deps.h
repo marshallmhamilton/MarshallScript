@@ -1,5 +1,7 @@
-#pragma once
-#
+#ifndef DEPS_H
+#define DEPS_H
+
+
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -11,3 +13,4 @@
 #include <typeinfo>
 #include <fstream>
 #include <unordered_map>
+#endif // !DEPS_H
