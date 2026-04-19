@@ -1,4 +1,7 @@
 #include "tokens.h"
+#include "util.h"
+#include "envs.h"
+#include "constants.h"
 
 Token::Token(string val, TokenType t) {
     value = val;
@@ -190,4 +193,145 @@ LogicExpression::LogicExpression(Token left, Token right, Token op) {
     s << "Error in logic operation: " << left.type << " " << op.value << " " << right.type;
     throw std::runtime_error(s.str());
     return;
+}
+
+Token Evals::EvaluateExpression(std::vector<Token>& tokens, int i) {
+    Token left = tokens.at(i - 1);
+    Token op = tokens.at(i);
+    Token right = tokens.at(i + 1);
+
+    Token result = Expression(left, right, op).result;
+
+
+    tokens[i] = result;
+    tokens.erase(tokens.begin() + i + 1);
+    tokens.erase(tokens.begin() + i - 1);
+
+
+    return result;
+}
+
+Token Evals::EvaluateLogicExpression(std::vector<Token>& tokens, int i) {
+    Token left = tokens.at(i - 1);
+    Token op = tokens.at(i);
+    Token right = tokens.at(i + 1);
+
+    Token result = LogicExpression(left, right, op).result;
+
+
+    tokens[i] = result;
+    tokens.erase(tokens.begin() + i + 1);
+    tokens.erase(tokens.begin() + i - 1);
+
+
+    return result;
+}
+
+Token Evals::EvaluateTokens(vector<Token> tokens) {
+    for (int i = 0; i < tokens.size(); i++) {
+        Token& token = tokens[i];
+        if (token.type == OPERATOR and (token.value == "**")) {
+
+            EvaluateExpression(tokens, i);
+        }
+
+        for (int i = 0; i < tokens.size(); i++) {
+            Token& token = tokens[i];
+            if (token.type == OPERATOR and (token.value == "*" or token.value == "/" or token.value == "//")) {
+                EvaluateExpression(tokens, i);
+            }
+        }
+        for (int i = 0; i < tokens.size(); i++) {
+            Token& token = tokens[i];
+            if (token.type == OPERATOR and (token.value == "+" or token.value == "-")) {
+                EvaluateExpression(tokens, i);
+            }
+        }
+
+        for (int i = 0; i < tokens.size(); i++) {
+            Token& token = tokens[i];
+            if (token.type == OPERATOR and (token.value == "%")) {
+                EvaluateExpression(tokens, i);
+            }
+        }
+
+        for (int i = 0; i < tokens.size(); i++) {
+            Token& token = tokens[i];
+            if (token.type == LOGIC) {
+                EvaluateLogicExpression(tokens, i);
+            }
+        }
+
+
+        if (tokens.size() <= 1)
+            return tokens.front();
+        return EvaluateTokens(tokens);
+    }
+}
+
+Token Evals::SimplifyExpr(vector<Token> tokens, Environment& env) {
+
+
+    int size = tokens.size();
+    for (int num = 0; num < size; num++) {
+
+        Token& token = tokens[num];
+        if (token.type == TEXT) {
+
+
+
+            if (env.varExsists(token.value)) {
+
+
+                VarValue val = env.getVar(token.value);
+
+                token = Utils::VarToToken(val);
+
+            }
+            else if (env.callbackExsists(token.value)) {
+                Callback callback = env.findCallback(token.value);
+                Environment environment = Environment(callback.args, &env);
+
+                vector<VarValue> argVals = Utils::EvaluateArguments(tokens, env, num + 2);
+                tokens.erase(tokens.begin() + num + 1);
+
+
+                environment.setArgs(argVals);
+
+
+                environment.type = Environment::FUNCTION;
+                environment.callback = callback;
+                token = Utils::VarToToken(environment.Call());
+
+                size = tokens.size();
+
+            }
+            else if (Utils::InList(TYPENAMES, token.value)) {
+                vector<VarValue> args = Utils::EvaluateArguments(tokens, env, num + 2);
+                tokens.erase(tokens.begin() + num + 1);
+                if (args.size() != 1) {
+                    stringstream s;
+                    s << "Invalid args for type: " << token.value;
+                    throw std::runtime_error(s.str());
+                }
+                if (token.value == "string") {
+                    token = Utils::changeVarType(args[0], STRING);
+                }
+                else if (token.value == "bool") {
+                    token = Utils::changeVarType(args[0], BOOL);
+                }
+                else if (token.value == "number") {
+                    token = Utils::changeVarType(args[0], NUMBER);
+                }
+                size = tokens.size();
+            }
+            else {
+                stringstream s;
+                s << "Unknown variable: " << token.value;
+                throw std::runtime_error(s.str());
+            }
+        }
+    }
+    Utils::EvaluateParenthesis(tokens, 0);
+    return EvaluateTokens(tokens);
 }

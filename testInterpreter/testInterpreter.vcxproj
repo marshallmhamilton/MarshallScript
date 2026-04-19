@@ -127,13 +127,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="envs.cpp" />
+    <ClCompile Include="executor.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="tokens.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="envs.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="deps.h" />
+    <ClInclude Include="executor.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="tokens.h" />
     <ClInclude Include="main.h" />

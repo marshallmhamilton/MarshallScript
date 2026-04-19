@@ -24,6 +24,12 @@
     <ClCompile Include="util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="envs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="executor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -39,6 +45,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="deps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="envs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="executor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
