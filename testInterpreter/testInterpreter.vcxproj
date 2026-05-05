@@ -130,6 +130,7 @@
     <ClCompile Include="envs.cpp" />
     <ClCompile Include="executor.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="table.cpp" />
     <ClCompile Include="tokens.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
@@ -138,6 +139,7 @@
     <ClInclude Include="constants.h" />
     <ClInclude Include="deps.h" />
     <ClInclude Include="executor.h" />
+    <ClInclude Include="table.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="tokens.h" />
     <ClInclude Include="main.h" />

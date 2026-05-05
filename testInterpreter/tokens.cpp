@@ -2,6 +2,7 @@
 #include "util.h"
 #include "envs.h"
 #include "constants.h"
+#include "table.h"
 
 Token::Token(string val, TokenType t) {
     value = val;
@@ -269,23 +270,69 @@ Token Evals::EvaluateTokens(vector<Token> tokens) {
     }
 }
 
-Token Evals::SimplifyExpr(vector<Token> tokens, Environment& env) {
+
+void evalTableVals(vector<Token>& tokens, int num, Environment& env, std::shared_ptr<Table> *p) {
+    
+        tokens.erase(tokens.begin() + num);
+
+        switch (tokens[num].type) {
+        case TABLEDEC:
+            tokens[num] = Utils::VarToToken(p->get()->GetValue(Evals::SimplifyExpr(Utils::EvaluateTable(tokens, num), env).value));
+            break;
+        case PERIOD:
+            tokens.erase(tokens.begin() + num);
+            Token& tag = tokens[num];
+            if (tag.type == TEXT) {
+
+                tag = Utils::VarToToken(p->get()->GetValue(tag.value));
+            }
+            break;
+        }
+        Token& newtoken = tokens[num];
+        if (newtoken.type == TABLE) {
+            VarValue val = Utils::TokenToVar(newtoken);
+            evalTableVals(tokens, num, env, std::get_if<std::shared_ptr<Table>>(&val));
+        }
+
+
+
+    }
+    
+   
+
+
+Token Evals::SimplifyExpr(vector<Token> tokens, Environment& env, bool inTable) {
 
 
     int size = tokens.size();
     for (int num = 0; num < size; num++) {
 
         Token& token = tokens[num];
+        if (token.type == TABLEDEC) {
+            
+            Table tbl(tokens,env);
+            size = tokens.size();
+            
+            token = Utils::VarToToken(std::make_shared<Table>(tbl));
+            
+            continue;
+        }
         if (token.type == TEXT) {
 
 
-
+            
+            
             if (env.varExsists(token.value)) {
-
-
                 VarValue val = env.getVar(token.value);
+                if (auto p = std::get_if<std::shared_ptr<Table>>(&val)) {
+                    
+                    evalTableVals(tokens, num, env, p);
+                } else {
 
-                token = Utils::VarToToken(val);
+                    token = Utils::VarToToken(val);
+                }
+                
+                size = tokens.size();
 
             }
             else if (env.callbackExsists(token.value)) {
@@ -323,7 +370,7 @@ Token Evals::SimplifyExpr(vector<Token> tokens, Environment& env) {
                 else if (token.value == "number") {
                     token = Utils::changeVarType(args[0], NUMBER);
                 }
-                size = tokens.size();
+                
             }
             else {
                 stringstream s;
@@ -335,3 +382,12 @@ Token Evals::SimplifyExpr(vector<Token> tokens, Environment& env) {
     Utils::EvaluateParenthesis(tokens, 0);
     return EvaluateTokens(tokens);
 }
+
+//Token Token::GetValue(string v) {
+//    if (type == TABLE) {
+//        return Utils::VarToToken(values[v]).GetValue();
+//    }
+//    else {
+//        return Token(value,type);
+//    }
+//}

@@ -1,5 +1,7 @@
+
 #include "util.h"
 #include "tokens.h"
+#include "table.h"
 
 bool Utils::IsIntegar(string s) {
 	if (s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
@@ -42,6 +44,12 @@ Token Utils::VarToToken(VarValue var) {
     if (auto p = std::get_if<bool>(&var)) {
         return Token(std::to_string(*p), BOOL);
     }
+    if (auto p = std::get_if<std::shared_ptr<Table>>(&var)) {
+        Table t = *p->get();
+        Token tbl = Token("", TABLE);
+        tbl.values = map<string, VarValue>(t.values);
+        return tbl;
+    }
     return Token("", ERROR);
 }
 
@@ -58,6 +66,11 @@ VarValue Utils::TokenToVar(Token token) {
     }
     case BOOL: {
         return token.value == "1";
+        break;
+    }
+    case TABLE: {
+        Environment env;
+        return std::make_shared<Table>(Table(token.values,env));
         break;
     }
     case ERROR: {
@@ -103,6 +116,41 @@ vector<Token> Utils::EvaluateBrackets(vector<Token> & tokens){
 
         return instructions;
  }
+vector<Token> Utils::EvaluateTable(vector<Token>& tokens, int start) {
+    vector<Token> instructions = {};
+    int num = start;
+    int depth = 1;
+    for (int i = start+1; i < tokens.size(); i++) {
+        Token token = tokens[i];
+        num++;
+        if (token.type == TABLEDEC and token.value == "[") depth += 1;
+
+        if (token.type == TABLEDEC and token.value == "]") depth -= 1;
+
+
+        if (depth == 0) break;
+
+
+        instructions.push_back(token);
+    }
+    if (instructions.empty())
+        return instructions;
+    if (depth != 0) {
+
+        stringstream s;
+
+        s << "Unfinished bracket!";
+        throw std::runtime_error(s.str());
+
+
+    }
+    
+    tokens.erase(tokens.begin()+start, tokens.begin() + num);
+    
+
+
+    return instructions;
+}
 
 int Utils::EvaluateParenthesis(vector<Token>& tokens, int begin) {
     for (int i = begin; i < (int)tokens.size(); ++i) {

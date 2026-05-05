@@ -20,6 +20,8 @@ struct Utils {
 
 	static vector<Token> EvaluateBrackets(vector<Token>& tokens);
 
+	static vector<Token> EvaluateTable(vector<Token>& tokens, int start = 0);
+
 	static int EvaluateParenthesis(vector<Token>& tokens, int begin);
 
 	static vector<VarValue> EvaluateArguments(vector<Token>& tokens, Environment env, int start);

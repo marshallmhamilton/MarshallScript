@@ -12,5 +12,6 @@
 #include <typeinfo>
 #include <fstream>
 #include <unordered_map>
-
+#include <array>
+#include <memory>
 #endif // !DEPS_H

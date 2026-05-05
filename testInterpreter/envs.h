@@ -4,6 +4,7 @@
 #include "tokens.h"
 
 class Token;
+class Table;
 
 class Callback {
 public:
