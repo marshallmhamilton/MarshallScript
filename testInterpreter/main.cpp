@@ -1,11 +1,10 @@
 #include "main.h"
 
+#include "envs.h"
 #include "tokens.h"
 #include "util.h"
 #include "constants.h"
 #include "executor.h"
-
-Environment globalEnviornment;
 
 static vector<Token> Lexer(string text) {
     vector<Token> tokens = vector<Token>{};
@@ -88,8 +87,7 @@ static vector<Token> Lexer(string text) {
 
             continue;
         }
-
-
+        //
         if (isdigit(c)) {
             bool period = false;
             for (int i = pos + 1; i < len; i++) {
@@ -161,14 +159,11 @@ static vector<Token> Lexer(string text) {
 
     return tokens;
 }
-
-
-
-
 //777777
 
-
-
+void AddDefaultFunction(Function f, string tag, int  minargs, int maxargs) {
+    globalEnvironment.defaultMethods.emplace(tag, DefaultMethod(f, maxargs, minargs));
+}
 
 
 void readFile(std::ifstream file) {
@@ -186,7 +181,15 @@ void readFile(std::ifstream file) {
 
         vector<Token> codeTokens = Lexer(text.str());
 
-        Executor::Execute(codeTokens, globalEnviornment);
+
+        AddDefaultFunction(Print, "print", 1,1);
+        AddDefaultFunction(RawPrint, "rawprint", 1,1);
+        AddDefaultFunction(Input, "input", 0,1);
+        AddDefaultFunction(Random, "random", 2,2);
+        AddDefaultFunction(MakeString, "tostring", 1, 1);
+        AddDefaultFunction(MakeNumber, "tonumber", 1, 1);
+
+        Executor::Execute(codeTokens, globalEnvironment);
     }
     catch (std::runtime_error err) {
         std::cout << "Error: " << err.what() << '\n';
@@ -201,7 +204,7 @@ int main(int argc, char** argv)
 {
     
     //readFile(std::ifstream("C:/InterpreterCode/coolio.txt"));
-    if (argc >= 3 and string(argv[1]) == "run") {
+   if (argc >= 3 and string(argv[1]) == "run") {
         string filename = argv[2];
         
         readFile(std::ifstream(filename));

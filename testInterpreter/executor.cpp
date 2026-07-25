@@ -1,5 +1,7 @@
 #include "executor.h"
 #include "util.h"
+#include "tokens.h"
+#include "table.h"
 
 VarValue Executor::Execute(vector<Token> tokens, Environment env) {
     while (!tokens.empty()) {
@@ -25,7 +27,7 @@ VarValue Executor::Execute(vector<Token> tokens, Environment env) {
             if (currentLine[0].value == "let" and currentLine.size() > 1 and currentLine[1].type == TEXT) {
                 string varName = currentLine[1].value;
                 Token def = currentLine[2];
-                if (!def.type == DEF or def.value != "=") break;
+                if (!def.type == TokenType::DEF or def.value != "=") break;
                 currentLine.erase(currentLine.begin(), currentLine.begin() + 3);
 
 
@@ -34,7 +36,7 @@ VarValue Executor::Execute(vector<Token> tokens, Environment env) {
 
 
             }
-            else if (currentLine[0].value == "print" and currentLine.size() > 1) {
+            /*else if (currentLine[0].value == "print" and currentLine.size() > 1) {
 
                 currentLine.erase(currentLine.begin());
 
@@ -50,7 +52,7 @@ VarValue Executor::Execute(vector<Token> tokens, Environment env) {
 
                 std::cout << finalToken.value;
                 break;
-            }
+            }*/
             else if (currentLine[0].value == "fn" and currentLine[1].type == TEXT) {
 
                 string funcName = currentLine[1].value;
@@ -74,7 +76,7 @@ VarValue Executor::Execute(vector<Token> tokens, Environment env) {
                 Token finalToken = Evals::SimplifyExpr(currentLine, env);
                 return  Utils::TokenToVar(finalToken);
             }
-            else if (currentLine[0].value == "input" and currentLine[1].type == TEXT) {
+            /*else if (currentLine[0].value == "input" and currentLine[1].type == TEXT) {
                 string text;
                 std::cin.clear();
 
@@ -82,7 +84,7 @@ VarValue Executor::Execute(vector<Token> tokens, Environment env) {
                 string varName = currentLine[1].value;
                 env.changeVar(varName, text);
                 currentLine.erase(currentLine.begin(), currentLine.begin() + 1);
-            }
+            }*/
             else if (currentLine[0].value == "if") {
                 currentLine.erase(currentLine.begin());
                 Token result = Evals::SimplifyExpr(currentLine, env);
@@ -146,15 +148,78 @@ VarValue Executor::Execute(vector<Token> tokens, Environment env) {
         case TEXT: {
             string varName = currentLine[0].value;
 
-
-            if (env.callbackExsists(varName)) {
+            
+            if (env.callbackExsists(varName) || env.defaultCallbackExsists(varName)) {
 
                 Evals::SimplifyExpr(currentLine, env);
 
             }
+
             else if (env.varExsists(varName)) {
                 Token def = currentLine[1];
-                if (!def.type == DEF) {
+                if (def.type == PERIOD || def.type == TABLEDEC) {
+
+                    bool end = false;
+                    std::list<string> l;
+                    currentLine.erase(currentLine.begin());  
+                    while (!end) {
+                        Token tblDef = currentLine[0];
+                        
+                        
+                        switch (tblDef.type) {
+                            case TABLEDEC: {
+                                
+                                vector<Token> evaled = Utils::EvaluateTable(currentLine, 0);
+                               
+                                currentLine.erase(currentLine.begin());
+                               
+                                l.push_front(Evals::SimplifyExpr(evaled, env).value);
+                               
+                               
+                                
+                                break;
+                            }
+                            case PERIOD: {
+                                currentLine.erase(currentLine.begin());
+                                l.push_front(currentLine[0].value);
+
+                                break;
+                            }
+                            case DEF: {
+
+                                currentLine.erase(currentLine.begin());
+                                if (tblDef.value != "=") {
+
+                                    stringstream s;
+                                    s << "Invalid definition! when using tables can only use '='";
+                                    throw std::runtime_error(s.str());
+                                }
+                                end = true;
+                                break;
+                            }
+                            default: {
+
+                                stringstream s;
+                                s << "Invalid table";
+                                throw std::runtime_error(s.str());
+                                break;
+                            }
+
+                        }
+
+                    } 
+                    
+                   
+                    
+                    if (auto p = std::get_if<std::shared_ptr<Table>>(&env.getVarRef(varName))) {
+                        Table & tbl = *p->get();
+                        tbl.ChangeValue(Evals::SimplifyExpr(currentLine,env),l);
+
+                    }
+                    break;
+                    
+                }
+                else if (def.type != TokenType::DEF) {
                     stringstream s;
                     s << "No definition found for var: '" << varName << "'";
                     throw std::runtime_error(s.str());

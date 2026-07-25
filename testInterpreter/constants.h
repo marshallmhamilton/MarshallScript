@@ -4,7 +4,7 @@
 
 #include "main.h"
 
-const string version = "0.2.0";
+const string version = "0.3.1";
 
 const std::list<char> TEXT_CHARS = std::list<char>{ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
 'q','r','s','t','u','v','w','x','y','z','_','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V',
@@ -16,7 +16,7 @@ const std::list<char> OPERATORS = std::list<char>{
 };
 
 const std::list<string> KEYWORDS = std::list<string>{
-     "let","print","fn","return","input","rawprint","if","while","break"
+     "let","fn","return","if","while","break"
 };
 
 const std::list<string> TYPENAMES = std::list<string>{

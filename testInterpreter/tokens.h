@@ -1,7 +1,6 @@
 #ifndef TOKENS_H
 #define TOKENS_H
 #include "main.h"
-#include "envs.h"
 
 enum TokenType {
     ERROR,
@@ -55,7 +54,7 @@ struct Evals {
     static Token EvaluateLogicExpression(std::vector<Token>& tokens, int i);
 	
 	static Token EvaluateTokens(vector<Token> token);
-	static Token SimplifyExpr(vector<Token> tokens, Environment& env, bool inTable = false);
+	static Token SimplifyExpr(vector<Token> tokens, Environment& env);
 };
 
 #endif // !TOKENS_H

@@ -148,7 +148,6 @@ vector<Token> Utils::EvaluateTable(vector<Token>& tokens, int start) {
     tokens.erase(tokens.begin()+start, tokens.begin() + num);
     
 
-
     return instructions;
 }
 
@@ -182,7 +181,7 @@ vector<VarValue> Utils::EvaluateArguments(vector<Token>& tokens, Environment env
         num++;
         if (token.type == PARENTHESIS and token.value == "L") depth += 1;
 
-        if (token.type == PARENTHESIS and token.value == "R") { depth -= 1; num++; }
+        if (token.type == PARENTHESIS and token.value == "R") depth -= 1; 
 
 
         if (depth == 0) break;
@@ -209,11 +208,23 @@ vector<VarValue> Utils::EvaluateArguments(vector<Token>& tokens, Environment env
 
     while (!instructions.empty()) {
         vector<Token> argVal = {};
-        int num = -1;
-
+        int num = 0;
+        int depth = 0;
         for (Token token : instructions) {
             num += 1;
-
+            if (token.type == PARENTHESIS || token.type == TABLEDEC) {
+                if (token.value == "L") {
+                    depth++;
+                }
+                else {
+                    depth--;
+                }
+                if (depth < 0) {
+                    stringstream s;
+                    s << "Unfinished parenthesis!";
+                    throw std::runtime_error(s.str());
+                }
+            }
             if (token.type == COMMA) break;
             argVal.push_back(token);
 
@@ -222,10 +233,87 @@ vector<VarValue> Utils::EvaluateArguments(vector<Token>& tokens, Environment env
 
 
         }
-        instructions.erase(instructions.begin(), instructions.begin() + num + 1);
+        instructions.erase(instructions.begin(), instructions.begin() + num);
 
         Token finalToken = Evals::SimplifyExpr(argVal, env);
         args.push_back(Utils::TokenToVar(finalToken));
+
+    }
+
+    return args;
+}
+vector<Token> Utils::EvaluateArgumentTokens(vector<Token>& tokens, Environment env, int start) {
+    vector<Token> instructions = {};
+    int num = 0;
+    int depth = 1;
+
+
+    for (int i = start; i < tokens.size(); i++) {
+        Token token = tokens[i];
+        num++;
+        if (token.type == PARENTHESIS and token.value == "L") depth += 1;
+
+        if (token.type == PARENTHESIS and token.value == "R") { depth -= 1;};
+
+
+        if (depth == 0) break;
+
+
+        instructions.push_back(token);
+    }
+    /*std::cout << "hereee";*/
+
+    
+    tokens.erase(tokens.begin() + start, tokens.begin() + num+1);
+    tokens.erase(tokens.begin() + start);
+    if (depth != 0) {
+
+        stringstream s;
+        s << "Unfinished parenthesis!";
+        throw std::runtime_error(s.str());
+
+
+    }
+
+
+    //77
+    vector<Token> args = {};
+   /* for (Token token : instructions) {
+        std::cout << token.type << '(' << token.value << ")\n";
+    }*/
+    while (!instructions.empty()) {
+        vector<Token> argVal = {};
+        int num = -1;
+        int depth = 0;
+        for (Token token : instructions) {
+            num += 1;
+            
+            if (token.type == PARENTHESIS || token.type == TABLEDEC) {
+                if (token.value == "L" || token.value == "[") {
+                    depth++;
+                }
+                else {
+                    depth--;
+                }
+                if (depth < 0) {
+                    stringstream s;
+                    s << "Unfinished parenthesis!";
+                    throw std::runtime_error(s.str());
+                }
+            }
+
+            if (token.type == COMMA and depth == 0) break;
+            argVal.push_back(token);
+
+
+
+
+
+        }
+        instructions.erase(instructions.begin(), instructions.begin() + num +1);
+        Token finalToken = Evals::SimplifyExpr(argVal, env);
+        
+        args.push_back(finalToken);
 
     }
 
@@ -268,6 +356,7 @@ vector<string> Utils::evalFunctionArgs(vector<Token> tokens) {
 
     }
 }
+
 
 Token Utils::changeVarType(VarValue val, TokenType convert) {
     Token first = Utils::VarToToken(val);

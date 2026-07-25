@@ -14,4 +14,8 @@
 #include <unordered_map>
 #include <array>
 #include <memory>
+#include <functional>
+#include <any>
+#include <cstdlib>
+#include <random>
 #endif // !DEPS_H

@@ -24,7 +24,10 @@ public:
 	void EvalList(vector<Token>& line);
 
 	VarValue GetValue(const string tag);
+
+	void ChangeValue(Token value, std::list<string> tags);
 };
+
 
 
 #endif

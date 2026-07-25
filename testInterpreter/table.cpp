@@ -97,3 +97,23 @@ Table::Table(vector<Token>& t, Environment& e) : env(e) {
 Table::Table(map<string, VarValue> v, Environment & e): env(e){
 	values = v;
 }
+
+void Table::ChangeValue(Token value, std::list<string> tags) {
+	Table currentTable = Table(values,env);
+	Table& orginalValues = currentTable;
+	while (tags.size() > 1) {
+		string txt = tags.front();
+		VarValue val = currentTable.GetValue(txt);
+		Token tk = Utils::VarToToken(val);
+		if (tk.type != TABLE) {
+			stringstream ss;
+			ss << "Value "<< txt << " is not a table!";
+			throw std::runtime_error(ss.str());
+		}
+		else
+			currentTable.values = tk.values;
+		tags.pop_front();
+	}
+	currentTable.values[tags.front()] = Utils::TokenToVar(value);
+	values = orginalValues.values;
+}

@@ -297,11 +297,9 @@ void evalTableVals(vector<Token>& tokens, int num, Environment& env, std::shared
 
 
     }
-    
-   
 
 
-Token Evals::SimplifyExpr(vector<Token> tokens, Environment& env, bool inTable) {
+Token Evals::SimplifyExpr(vector<Token> tokens, Environment& env) {
 
 
     int size = tokens.size();
@@ -353,7 +351,7 @@ Token Evals::SimplifyExpr(vector<Token> tokens, Environment& env, bool inTable) 
                 size = tokens.size();
 
             }
-            else if (Utils::InList(TYPENAMES, token.value)) {
+        /*    else if (Utils::InList(TYPENAMES, token.value)) {
                 vector<VarValue> args = Utils::EvaluateArguments(tokens, env, num + 2);
                 tokens.erase(tokens.begin() + num + 1);
                 if (args.size() != 1) {
@@ -371,6 +369,19 @@ Token Evals::SimplifyExpr(vector<Token> tokens, Environment& env, bool inTable) 
                     token = Utils::changeVarType(args[0], NUMBER);
                 }
                 
+            }*/
+            else if (env.defaultCallbackExsists(token.value)) {
+                DefaultMethod dm = env.findDefaultCallback(token.value);
+                
+                vector<Token> argVals = Utils::EvaluateArgumentTokens(tokens, env, num + 2);
+                tokens.erase(tokens.begin() + num + 1);
+               /* std::cout << "GAY\n";*/
+               
+                token = dm.Call(argVals);
+                /*for (Token t : tokens) {
+                    std::cout << t.type << '-' << t.value << '\n';
+                }*/
+                size = tokens.size();
             }
             else {
                 stringstream s;

@@ -1,7 +1,6 @@
 #ifndef UTIL_H
 #define UTIL_H
 #include "main.h"
-
 #include "tokens.h"
 
 struct Utils {
@@ -25,6 +24,8 @@ struct Utils {
 	static int EvaluateParenthesis(vector<Token>& tokens, int begin);
 
 	static vector<VarValue> EvaluateArguments(vector<Token>& tokens, Environment env, int start);
+
+	static vector<Token> EvaluateArgumentTokens(vector<Token>& tokens, Environment env, int start);
 
 	static vector<string> evalFunctionArgs(vector<Token> tokens);
 

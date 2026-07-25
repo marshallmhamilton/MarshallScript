@@ -17,6 +17,7 @@ enum LoopEndType {
 };
 
 class Table;
+
 using VarValue = std::variant<std::monostate, int64_t, double, string, bool, LoopEndType, std::shared_ptr<Table>, None>;
 
 
