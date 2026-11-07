@@ -302,7 +302,7 @@ vector<Token> Utils::EvaluateArgumentTokens(vector<Token>& tokens, Environment e
                 }
             }
 
-            if (token.type == COMMA and depth == 0) break;
+            if (token.type == COMMA && depth == 0) break;
             argVal.push_back(token);
 
 
@@ -321,7 +321,7 @@ vector<Token> Utils::EvaluateArgumentTokens(vector<Token>& tokens, Environment e
 }
 
 vector<string> Utils::evalFunctionArgs(vector<Token> tokens) {
-    if (tokens[0].type == PARENTHESIS and tokens[0].value == "L") {
+    if (tokens[0].type == PARENTHESIS && tokens[0].value == "L") {
         tokens.erase(tokens.begin());
         vector<string> argVal = {};
         while (!tokens.empty()) {

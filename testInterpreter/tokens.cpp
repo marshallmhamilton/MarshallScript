@@ -14,82 +14,80 @@ Token::Token() {
 }
 
 Expression::Expression(Token left, Token right, Token op) {
-    if (op.value == "+") {
-        if (left.type == NUMBER and right.type == NUMBER) {
-            if (Utils::IsIntegar(left.value) and Utils::IsIntegar(right.value)) {
-                result = Token(std::to_string(std::stoi(left.value) + std::stoi(right.value)), NUMBER);
+    switch (op.Operator) {
+        case OperatorTypes::PLUS: {
+            if (left.type == NUMBER and right.type == NUMBER) {
+                if (Utils::IsIntegar(left.value) and Utils::IsIntegar(right.value)) {
+                    result = Token(std::to_string(std::stoi(left.value) + std::stoi(right.value)), NUMBER);
+                    return;
+                }
+                else {
+                    result = Token(std::to_string(std::stof(left.value) + std::stof(right.value)), NUMBER);
+                }
+
+            }
+            else if (left.type == STRING or right.type == STRING) {
+                std::stringstream ss;
+                ss << left.value << right.value;
+                result = Token(ss.str(), STRING);
+            }
+            break;
+        }
+        case OperatorTypes::MINUS: {
+            if (left.type == NUMBER and right.type == NUMBER) {
+                if (Utils::IsIntegar(left.value) and Utils::IsIntegar(right.value)) {
+                    result = Token(std::to_string(std::stoi(left.value) - std::stoi(right.value)), NUMBER);
+                    return;
+                }
+                else {
+                    result = Token(std::to_string(std::stof(left.value) - std::stof(right.value)), NUMBER);
+                }
+            }
+            break;
+        }
+        case OperatorTypes::MULTI: {
+            if (left.type == NUMBER and right.type == NUMBER) {
+                if (Utils::IsIntegar(left.value) and Utils::IsIntegar(right.value)) {
+                    result = Token(std::to_string(std::stoi(left.value) * std::stoi(right.value)), NUMBER);
+                    return;
+                }
+                else {
+                    result = Token(std::to_string(std::stof(left.value) * std::stof(right.value)), NUMBER);
+                }
+            }
+            break;
+        }
+        case OperatorTypes::DIV: {
+            if (left.type == NUMBER and right.type == NUMBER) {
+                result = Token(std::to_string(stof(left.value) / stof(right.value)), NUMBER);
                 return;
             }
-            else {
-                result = Token(std::to_string(std::stof(left.value) + std::stof(right.value)), NUMBER);
-            }
-
+            break;
         }
-        else if (left.type == STRING or right.type == STRING) {
-            std::stringstream ss;
-            ss << left.value << right.value;
-            result = Token(ss.str(), STRING);
-        }
+        case OperatorTypes::DIVR: {
+            if (left.type == NUMBER and right.type == NUMBER) {
+                int rf = static_cast<int>(std::floor(static_cast<float>(stof(left.value) / stof(right.value))));
 
-        return;
-    }
-
-    if (op.value == "-") {
-        if (left.type == NUMBER and right.type == NUMBER) {
-            if (Utils::IsIntegar(left.value) and Utils::IsIntegar(right.value)) {
-                result = Token(std::to_string(std::stoi(left.value) - std::stoi(right.value)), NUMBER);
+                result = Token(std::to_string(rf), NUMBER);
                 return;
             }
-            else {
-                result = Token(std::to_string(std::stof(left.value) - std::stof(right.value)), NUMBER);
-            }
+            break;
         }
-        return;
-    }
-
-    if (op.value == "*") {
-        if (left.type == NUMBER and right.type == NUMBER) {
-            if (Utils::IsIntegar(left.value) and Utils::IsIntegar(right.value)) {
-                result = Token(std::to_string(std::stoi(left.value) * std::stoi(right.value)), NUMBER);
-                return;
+        case OperatorTypes::POW: {
+            if (left.type == NUMBER and right.type == NUMBER) {
+                if (Utils::IsIntegar(left.value) and Utils::IsIntegar(right.value)) {
+                    result = Token(std::to_string(std::pow(std::stoi(left.value), std::stoi(right.value))), NUMBER);
+                    return;
+                }
+                else {
+                    result = Token(std::to_string(std::pow(std::stof(left.value), std::stof(right.value))), NUMBER);
+                }
             }
-            else {
-                result = Token(std::to_string(std::stof(left.value) * std::stof(right.value)), NUMBER);
-            }
+            break;
         }
-        return;
     }
+    
 
-    if (op.value == "/") {
-        if (left.type == NUMBER and right.type == NUMBER) {
-            result = Token(std::to_string(stof(left.value) / stof(right.value)), NUMBER);
-            return;
-        }
-        return;
-    }
-
-    if (op.value == "//") {
-        if (left.type == NUMBER and right.type == NUMBER) {
-            int rf = static_cast<int>(std::floor(static_cast<float>(stof(left.value) / stof(right.value))));
-
-            result = Token(std::to_string(rf), NUMBER);
-            return;
-        }
-        return;
-    }
-
-    if (op.value == "**") {
-        if (left.type == NUMBER and right.type == NUMBER) {
-            if (Utils::IsIntegar(left.value) and Utils::IsIntegar(right.value)) {
-                result = Token(std::to_string(std::pow(std::stoi(left.value), std::stoi(right.value))), NUMBER);
-                return;
-            }
-            else {
-                result = Token(std::to_string(std::pow(std::stof(left.value), std::stof(right.value))), NUMBER);
-            }
-        }
-        return;
-    }
     stringstream s;
     s << "Error in arithmatic operation: " << left.type << " " << op.value << " " << right.type;
     throw std::runtime_error(s.str());

@@ -7,7 +7,7 @@ VarValue Executor::Execute(vector<Token> tokens, Environment env) {
     while (!tokens.empty()) {
         vector<Token> currentLine = {};
         int tokenNumber = 0;
-
+      
         for (Token token : tokens) {
 
             tokenNumber += 1;
@@ -23,59 +23,117 @@ VarValue Executor::Execute(vector<Token> tokens, Environment env) {
 
         switch (currentLine[0].type) {
         case KEYWORD: {
-
-            if (currentLine[0].value == "let" and currentLine.size() > 1 and currentLine[1].type == TEXT) {
-                string varName = currentLine[1].value;
-                Token def = currentLine[2];
-                if (!def.type == TokenType::DEF or def.value != "=") break;
-                currentLine.erase(currentLine.begin(), currentLine.begin() + 3);
-
-
-                Token finalToken = Evals::SimplifyExpr(currentLine, env);
-                env.setVar(varName, Utils::TokenToVar(finalToken));
-
-
-            }
-            /*else if (currentLine[0].value == "print" and currentLine.size() > 1) {
-
-                currentLine.erase(currentLine.begin());
-
-                Token finalToken = Evals::SimplifyExpr(currentLine, env);
-
-                std::cout << finalToken.value << "\n";
-            }
-            else if (currentLine[0].value == "rawprint" and currentLine.size() > 1) {
-
-                currentLine.erase(currentLine.begin());
-
-                Token finalToken = Evals::SimplifyExpr(currentLine, env);
-
-                std::cout << finalToken.value;
-                break;
-            }*/
-            else if (currentLine[0].value == "fn" and currentLine[1].type == TEXT) {
-
-                string funcName = currentLine[1].value;
-                currentLine.erase(currentLine.begin());
-
-                currentLine.erase(currentLine.begin());
-                env.setCallback(funcName, Callback(tokens, Utils::evalFunctionArgs(currentLine)));
-
-                break;
+            switch (currentLine[0].Keyword) {
+                case KeywordTypes::LET: {
+                    if (currentLine.size() > 1 and currentLine[1].type == TEXT) {
+                    
+                        string varName = currentLine[1].value;
+                        Token def = currentLine[2];
+                        
+                        if (!def.type == TokenType::DEF or def.value != "=") break;
+                        
+                        currentLine.erase(currentLine.begin(), currentLine.begin() + 3);
 
 
-            }
-            else if (currentLine[0].value == "return") {
-                if (!env.IsAncestorOfType(Environment::FUNCTION)) {
-                    stringstream s;
-                    s << "Illegal use of return!";
-                    throw std::runtime_error(s.str());
+                        Token finalToken = Evals::SimplifyExpr(currentLine, env);
+                        env.setVar(varName, Utils::TokenToVar(finalToken));
+                        break;
+
+                    }
                     break;
                 }
-                currentLine.erase(currentLine.begin());
-                Token finalToken = Evals::SimplifyExpr(currentLine, env);
-                return  Utils::TokenToVar(finalToken);
+                case KeywordTypes::FN: {
+                    if (currentLine[1].type == TEXT) {
+
+                        string funcName = currentLine[1].value;
+                        currentLine.erase(currentLine.begin());
+
+                        currentLine.erase(currentLine.begin());
+                        env.setCallback(funcName, Callback(tokens, Utils::evalFunctionArgs(currentLine)));
+
+                        break;
+
+
+                    }
+                    break;
+
+                }
+                case KeywordTypes::RETURN: {
+                    if (!env.IsAncestorOfType(Environment::FUNCTION)) {
+                        stringstream s;
+                        s << "Illegal use of return!";
+                        throw std::runtime_error(s.str());
+                        break;
+                    }
+                    currentLine.erase(currentLine.begin());
+                    Token finalToken = Evals::SimplifyExpr(currentLine, env);
+                    return  Utils::TokenToVar(finalToken);
+                    break;
+                }
+                case KeywordTypes::IF: {
+               
+                        currentLine.erase(currentLine.begin());
+                        Token result = Evals::SimplifyExpr(currentLine, env);
+
+                        currentLine.erase(currentLine.begin(), currentLine.begin() + 1);
+                        if (result.type != BOOL) {
+                            stringstream s;
+                            s << "Not a boolean";
+                            throw std::runtime_error(s.str());
+                            break;
+                        }
+                        Environment ifEnvironment = Environment(&env);
+                        ifEnvironment.callback = Callback(tokens);
+
+                        if (result.value == "1") {
+                            VarValue var = ifEnvironment.Call();
+                            Token resultToken = Utils::VarToToken(var);
+
+
+
+                            if (resultToken.type != ERROR and env.IsAncestorOfType(Environment::FUNCTION)) {
+                                return var;
+                            }
+
+
+                        }
+                        break;
+
+                    }
+                case KeywordTypes::WHILE: {
+                    currentLine.erase(currentLine.begin());
+                    vector<Token> logic(currentLine);
+
+                    currentLine.erase(currentLine.begin(), currentLine.begin() + 1);
+                    Token result = Evals::SimplifyExpr(vector<Token>(logic), env);
+                    Environment environment = Environment(&env);
+                    environment.type = Environment::LOOP;
+                    environment.callback = Callback(tokens);
+                    while (result.value == "1") {
+
+                        VarValue var = environment.Call();
+                        Token resultToken = Utils::VarToToken(var);
+
+                        if (resultToken.type != ERROR and env.IsAncestorOfType(Environment::FUNCTION)) {
+                            return var;
+                        }
+                        if (resultToken.type == BREAK and resultToken.value == "1") {
+                            break;
+                        }
+
+                        result = Evals::SimplifyExpr(vector<Token>(logic), env);
+
+                    }
+                    break;
+                }
+                case KeywordTypes::BREAK: {
+                    if (env.IsAncestorOfType(Environment::LOOP)) {
+                        return END;
+                    }
+                    break;
+                }
             }
+            
             /*else if (currentLine[0].value == "input" and currentLine[1].type == TEXT) {
                 string text;
                 std::cin.clear();
@@ -85,64 +143,8 @@ VarValue Executor::Execute(vector<Token> tokens, Environment env) {
                 env.changeVar(varName, text);
                 currentLine.erase(currentLine.begin(), currentLine.begin() + 1);
             }*/
-            else if (currentLine[0].value == "if") {
-                currentLine.erase(currentLine.begin());
-                Token result = Evals::SimplifyExpr(currentLine, env);
-
-                currentLine.erase(currentLine.begin(), currentLine.begin() + 1);
-                if (result.type != BOOL) {
-                    stringstream s;
-                    s << "Not a boolean";
-                    throw std::runtime_error(s.str());
-                    break;
-                }
-                Environment ifEnvironment = Environment(&env);
-                ifEnvironment.callback = Callback(tokens);
-
-                if (result.value == "1") {
-                    VarValue var = ifEnvironment.Call();
-                    Token resultToken = Utils::VarToToken(var);
-
-
-
-                    if (resultToken.type != ERROR and env.IsAncestorOfType(Environment::FUNCTION)) {
-                        return var;
-                    }
-
-
-                }
-                break;
-
-            }
-            else if (currentLine[0].value == "while") {
-                currentLine.erase(currentLine.begin());
-                vector<Token> logic(currentLine);
-
-                currentLine.erase(currentLine.begin(), currentLine.begin() + 1);
-                Token result = Evals::SimplifyExpr(vector<Token>(logic), env);
-                Environment environment = Environment(&env);
-                environment.type = Environment::LOOP;
-                environment.callback = Callback(tokens);
-                while (result.value == "1") {
-
-                    VarValue var = environment.Call();
-                    Token resultToken = Utils::VarToToken(var);
-
-                    if (resultToken.type != ERROR and env.IsAncestorOfType(Environment::FUNCTION)) {
-                        return var;
-                    }
-                    if (resultToken.type == BREAK and resultToken.value == "1") {
-                        break;
-                    }
-
-                    result = Evals::SimplifyExpr(vector<Token>(logic), env);
-
-                }
-                break;
-            }
-            else if (currentLine[0].value == "break" and env.IsAncestorOfType(Environment::LOOP)) {
-                return END;
-            }
+            
+             
             break;
         }
         case TEXT: {

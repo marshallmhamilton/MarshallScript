@@ -20,7 +20,15 @@ static vector<Token> Lexer(string text) {
 
         if (Utils::IsWhiteSpace(c))
             continue;
-
+        if (c == '#') {
+           
+           int i = pos +1;
+           while (text[i] != '#') {
+               i++;
+               pos = i;
+           }
+           continue;
+        }
         if (Utils::InList(LOGIC_DEF_CHARS, c)) {
             
             
@@ -32,7 +40,7 @@ static vector<Token> Lexer(string text) {
             if (Utils::InList(LOGIC_DEFS, val.str())) {
                 tokens.push_back(Token(val.str(), LOGIC));
                 
-                continue;
+                continue;  
             }
             
         }
@@ -45,13 +53,39 @@ static vector<Token> Lexer(string text) {
                 pos = i;
             }
 
+            Token token(val.str(), OPERATOR);
+
+
             if (Utils::InList(DEFS, val.str())) {
-                tokens.push_back(Token(val.str(), DEF));
-                continue;
+                token.type = DEF;  
+
+
+             
             }
+
+            else if (val.str() == "+") {
+                token.Operator = OperatorTypes::PLUS;
+            }
+            else if (val.str() == "-") {
+                token.Operator = OperatorTypes::MINUS;
+            }
+            else if (val.str() == "*") {
+                token.Operator = OperatorTypes::MULTI;
+            }
+            else if (val.str() == "/") {
+                token.Operator = OperatorTypes::DIV;
+            }
+            else if (val.str() == "//") {
+                token.Operator = OperatorTypes::DIVR;
+            }
+            else if (val.str() == "**") {
+                token.Operator = OperatorTypes::POW;
+            }
+
+            
             
 
-            tokens.push_back(Token(val.str(), OPERATOR));
+            tokens.push_back(token);
 
             continue;
         }
@@ -75,14 +109,35 @@ static vector<Token> Lexer(string text) {
                 continue;
             }
                 
-                
+            Token token(val.str(), TEXT);
 
             if (Utils::InList(KEYWORDS, val.str())) {
-                tokens.push_back(Token(val.str(), KEYWORD));
-                continue;
+                token.type = KEYWORD;
+
+                if (val.str() == "let") {
+                    token.Keyword = KeywordTypes::LET;
+                }
+                else if (val.str() == "fn") {
+                    token.Keyword = KeywordTypes::FN;
+                }
+                else if (val.str() == "if") {
+                    token.Keyword = KeywordTypes::IF;
+                }
+                else if (val.str() == "return") {
+                    token.Keyword = KeywordTypes::RETURN;
+                }
+                else if (val.str() == "while") {
+                    token.Keyword = KeywordTypes::WHILE;
+                }
+                else if (val.str() == "break") {
+                    token.Keyword = KeywordTypes::BREAK;
+                }
+                
+
+               
             }
 
-            tokens.push_back(Token(val.str(), TEXT));
+            tokens.push_back(token);
 
 
             continue;
@@ -188,6 +243,7 @@ void readFile(std::ifstream file) {
         AddDefaultFunction(Random, "random", 2,2);
         AddDefaultFunction(MakeString, "tostring", 1, 1);
         AddDefaultFunction(MakeNumber, "tonumber", 1, 1);
+        
 
         Executor::Execute(codeTokens, globalEnvironment);
     }
@@ -203,13 +259,13 @@ void readFile(std::ifstream file) {
 int main(int argc, char** argv)
 {
     
-    //readFile(std::ifstream("C:/InterpreterCode/coolio.txt"));
-   if (argc >= 3 and string(argv[1]) == "run") {
+    readFile(std::ifstream("C:/InterpreterCode/coolio.txt"));
+   /*if (argc >= 3 and string(argv[1]) == "run") {
         string filename = argv[2];
         
         readFile(std::ifstream(filename));
         return 0;
-    } else if (argc == 2 and string(argv[1]) == "-version") {
+   } else if (argc == 2 and string(argv[1]) == "-version") {
 
         std::cout << "MarshallScript version " << version << '\n';
 
@@ -217,7 +273,7 @@ int main(int argc, char** argv)
     }
     std::cerr << "Usage:\n Running a file: MarshallScript run <file>\n Version: MarshallScript -version\n";
    
-    return 1;
-    //return 0;
+    return 1;*/
+    return 0;
     
 }

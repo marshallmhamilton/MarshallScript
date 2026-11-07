@@ -25,8 +25,33 @@ enum TokenType {
     
 };
 
+struct OperatorTypes {
+    enum Operators {
+        NONE,
+        PLUS,
+        MINUS,
+        MULTI,
+        DIV,
+        DIVR,
+        POW
+    };
+};
+struct KeywordTypes {
+    enum Keywords {
+        LET,
+        FN,
+        RETURN,
+        IF,
+        WHILE,
+        BREAK
+    };
+};
+
 class Token {
 public:
+    
+    OperatorTypes::Operators Operator;
+    KeywordTypes::Keywords Keyword;
 	string value;
 	TokenType type;
     map<string, VarValue> values;
