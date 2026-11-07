@@ -259,8 +259,8 @@ void readFile(std::ifstream file) {
 int main(int argc, char** argv)
 {
     
-    readFile(std::ifstream("C:/InterpreterCode/coolio.txt"));
-   /*if (argc >= 3 and string(argv[1]) == "run") {
+  
+   if (argc >= 3 and string(argv[1]) == "run") {
         string filename = argv[2];
         
         readFile(std::ifstream(filename));
@@ -273,7 +273,7 @@ int main(int argc, char** argv)
     }
     std::cerr << "Usage:\n Running a file: MarshallScript run <file>\n Version: MarshallScript -version\n";
    
-    return 1;*/
-    return 0;
+    return 1;
+    //return 0;
     
 }
