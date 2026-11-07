@@ -23,13 +23,19 @@ Expression::Expression(Token left, Token right, Token op) {
                 }
                 else {
                     result = Token(std::to_string(std::stof(left.value) + std::stof(right.value)), NUMBER);
+                    
+                    return;
                 }
 
             }
             else if (left.type == STRING or right.type == STRING) {
+              
                 std::stringstream ss;
                 ss << left.value << right.value;
+               
                 result = Token(ss.str(), STRING);
+                return;
+
             }
             break;
         }
@@ -41,6 +47,7 @@ Expression::Expression(Token left, Token right, Token op) {
                 }
                 else {
                     result = Token(std::to_string(std::stof(left.value) - std::stof(right.value)), NUMBER);
+                    return;
                 }
             }
             break;
@@ -53,6 +60,7 @@ Expression::Expression(Token left, Token right, Token op) {
                 }
                 else {
                     result = Token(std::to_string(std::stof(left.value) * std::stof(right.value)), NUMBER);
+                    return;
                 }
             }
             break;
@@ -81,6 +89,7 @@ Expression::Expression(Token left, Token right, Token op) {
                 }
                 else {
                     result = Token(std::to_string(std::pow(std::stof(left.value), std::stof(right.value))), NUMBER);
+                    return;
                 }
             }
             break;
